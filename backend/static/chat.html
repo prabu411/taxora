@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxora - AI Finance Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .persona-section {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .persona-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .sidebar-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 20px;
+        }
+
+        .restart-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* AI Provider Selector */
+        .ai-provider-selector {
+            margin-top: 10px;
+        }
+
+        .provider-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .provider-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .provider-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .provider-status .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .provider-status .status-dot.error {
+            background: #dc3545;
+        }
+
+        .provider-status .status-dot.warning {
+            background: #ffc107;
+        }
+
+        /* Feature Controls */
+        .feature-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #495057;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .feature-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .feature-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .feature-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Gemini Voice Chat Button */
+        #geminiVoiceBtn {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            border: 2px solid #4285f4;
+        }
+
+        #geminiVoiceBtn:hover {
+            background: linear-gradient(135deg, #3367d6, #2d8e47);
+            border-color: #3367d6;
+        }
+
+        #geminiVoiceBtn.active {
+            background: linear-gradient(135deg, #ea4335, #fbbc04);
+            border-color: #ea4335;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Voice Language Selector */
+        .voice-language-selector {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.85rem;
+            color: #495057;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Voice Button in Messages */
+        .voice-btn {
+            background: none;
+            border: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 8px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            opacity: 1;
+        }
+
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 1.2rem;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #28a745;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Onboarding Modal */
+        .onboarding-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .onboarding-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .onboarding-content h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .onboarding-content p {
+            color: #6c757d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .message-bubble:hover {
+            transform: translateY(-2px);
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: #495057;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            resize: none;
+            max-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                z-index: 100;
+                height: 100%;
+            }
+            
+            .sidebar.open {
+                transform: translateX(300px);
+            }
+            
+            .chat-container {
+                width: 100%;
+            }
+        }
+
+        /* Loading indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 15px 20px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #6c757d;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🤖 Taxora</h1>
+                <p>AI Finance Assistant</p>
+            </div>
+            
+            <div class="persona-section">
+                <h3 style="color: #495057; margin-bottom: 10px;">Active Persona</h3>
+                <div class="persona-badge" id="personaBadge">General User</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🤖 AI Provider</h3>
+                <div class="ai-provider-selector">
+                    <select id="aiProviderSelect" class="provider-select" onchange="switchAIProvider()">
+                        <option value="granite">IBM Granite (Local)</option>
+                        <option value="gemini">Google Gemini (Cloud)</option>
+                    </select>
+                    <div class="provider-status" id="providerStatus">
+                        <span class="status-dot" id="providerStatusDot"></span>
+                        <span id="providerStatusText">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🎙️ Voice & Files</h3>
+                <div class="feature-controls">
+                    <button class="feature-btn" id="voiceBtn" onclick="toggleVoiceInput()">
+                        🎤 Voice Input
+                    </button>
+                    <button class="feature-btn" id="geminiVoiceBtn" onclick="toggleGeminiVoiceChat()">
+                        🎙️ Gemini Voice Chat
+                    </button>
+                    <div class="voice-language-selector">
+                        <label for="voiceLanguage" style="font-size: 0.8rem; color: #6c757d;">Voice Output:</label>
+                        <select id="voiceLanguage" class="language-select" onchange="updateVoiceLanguage()">
+                            <option value="both">🌐 English + Tamil</option>
+                            <option value="en">🇺🇸 English Only</option>
+                            <option value="ta">🇮🇳 Tamil Only</option>
+                        </select>
+                        <button class="feature-btn" style="margin-top: 8px; font-size: 0.8rem;" onclick="testTamilVoice()">
+                            🎵 Test Tamil Voice
+                        </button>
+                    </div>
+                    <button class="feature-btn" id="fileBtn" onclick="triggerFileUpload()">
+                        📁 Upload File
+                    </button>
+                    <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload()"
+                           accept=".jpg,.jpeg,.png,.gif,.pdf,.txt,.docx,.xlsx">
+                    <input type="file" id="audioInput" style="display: none;" onchange="handleAudioUpload()"
+                           accept=".webm,.mp3,.wav,.m4a">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>AI Features</h3>
+                <ul class="feature-list">
+                    <li id="feature-ai-provider">Multi-AI Support</li>
+                    <li id="feature-voice">Voice Interaction</li>
+                    <li id="feature-files">File Analysis</li>
+                    <li id="feature-nlu">Sentiment Detection</li>
+                    <li id="feature-context">Context Awareness</li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Tips for Better Conversations</h3>
+                <ul class="feature-list">
+                    <li>Be specific about your financial goals</li>
+                    <li>Mention your current situation</li>
+                    <li>Ask follow-up questions</li>
+                    <li>Share your risk tolerance</li>
+                </ul>
+            </div>
+            
+            <button class="restart-btn" onclick="restartSession()">🔄 New Session</button>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title" id="chatTitle">Welcome! Let's start your financial journey</div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>AI Ready</span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="messageInput" 
+                        placeholder="Ask me about savings, investments, budgeting, or any financial topic..."
+                        rows="1"
+                        disabled
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal -->
+    <div class="onboarding-modal" id="onboardingModal">
+        <div class="onboarding-content">
+            <h2>👋 Welcome to Taxora!</h2>
+            <p>I'm your AI-powered finance assistant. Let me get to know you better so I can provide personalized advice.</p>
+            
+            <div class="form-group">
+                <label for="userName">What's your name?</label>
+                <input type="text" id="userName" placeholder="Enter your name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="userRole">What best describes you?</label>
+                <select id="userRole" required>
+                    <option value="">Select your role</option>
+                    <option value="student">Student - Learning about finance</option>
+                    <option value="professional">Professional - Managing career finances</option>
+                    <option value="general">General - Personal finance guidance</option>
+                </select>
+            </div>
+            
+            <button class="start-btn" onclick="startSession()">Start Chatting 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let userName = '';
+        let userRole = '';
+
+        // Auto-resize textarea
+        document.getElementById('messageInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        async function startSession() {
+            userName = document.getElementById('userName').value.trim();
+            userRole = document.getElementById('userRole').value;
+            
+            if (!userName || !userRole) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: userName,
+                        role: userRole
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    sessionId = data.session_id;
+                    
+                    // Update UI
+                    document.getElementById('onboardingModal').style.display = 'none';
+                    document.getElementById('personaBadge').textContent = 
+                        userRole.charAt(0).toUpperCase() + userRole.slice(1);
+                    document.getElementById('chatTitle').textContent = 
+                        `Chat with ${userName} (${userRole})`;
+                    
+                    // Enable chat input
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('messageInput').focus();
+                    
+                    // Add welcome message
+                    addMessage('bot', data.message + '\n\n' + data.next_steps);
+                    
+                } else {
+                    alert('Failed to start session: ' + data.detail);
+                }
+            } catch (error) {
+                alert('Error starting session: ' + error.message);
+            }
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message || !sessionId) return;
+            
+            // Add user message to chat
+            addMessage('user', message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Disable input while processing
+            messageInput.disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: message
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                hideTypingIndicator();
+                
+                if (response.ok) {
+                    // Add bot response with voice output enabled
+                    addMessage('bot', data.reply, true);
+                    
+                    // Show insights if available
+                    if (data.conversation_insights) {
+                        const insights = data.conversation_insights;
+                        console.log('Conversation insights:', insights);
+                    }
+                } else {
+                    addMessage('bot', 'Sorry, I encountered an error: ' + data.detail);
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('bot', 'Sorry, I\'m having trouble connecting. Please try again.');
+            } finally {
+                // Re-enable input
+                messageInput.disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        function addMessage(sender, text, enableVoice = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // Add voice button for bot messages
+            const voiceButton = (sender === 'bot' && 'speechSynthesis' in window) ?
+                `<button class="voice-btn" onclick="speakMessage('${text.replace(/'/g, "\\'")}')">🔊</button>` : '';
+
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    ${text.replace(/\n/g, '<br>')}
+                    <div class="message-time">
+                        ${time}
+                        ${voiceButton}
+                    </div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Auto-speak bot messages if voice output is enabled
+            if (sender === 'bot' && enableVoice && 'speechSynthesis' in window) {
+                speakMessage(text);
+            }
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function restartSession() {
+            if (confirm('Are you sure you want to start a new session? This will clear your current conversation.')) {
+                sessionId = null;
+                userName = '';
+                userRole = '';
+                
+                // Clear chat
+                document.getElementById('chatMessages').innerHTML = '';
+                
+                // Reset UI
+                document.getElementById('messageInput').disabled = true;
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('onboardingModal').style.display = 'flex';
+                document.getElementById('userName').value = '';
+                document.getElementById('userRole').value = '';
+            }
+        }
+
+        // AI Provider Management
+        let currentAIProvider = 'gemini';
+        let voiceInputActive = false;
+        let geminiVoiceActive = false;
+        let speechRecognition = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let voiceLanguagePreference = 'both'; // 'both', 'en', 'ta'
+
+        async function loadAIProviders() {
+            try {
+                const response = await fetch('/ai/providers');
+                const data = await response.json();
+
+                if (data.success) {
+                    const providers = data.data.available_providers;
+                    const select = document.getElementById('aiProviderSelect');
+                    const statusText = document.getElementById('providerStatusText');
+                    const statusDot = document.getElementById('providerStatusDot');
+
+                    // Clear existing options
+                    select.innerHTML = '';
+
+                    // Add only available providers with rate limit info
+                    Object.keys(providers).forEach(providerId => {
+                        const provider = providers[providerId];
+                        if (provider.status === 'available') {
+                            const option = document.createElement('option');
+                            option.value = providerId;
+
+                            // Add rate limit info for Gemini
+                            if (providerId === 'gemini' && provider.rate_limit_status) {
+                                const rateLimitInfo = provider.rate_limit_status;
+                                const remaining = rateLimitInfo.minute_remaining;
+
+                                if (remaining <= 0) {
+                                    option.textContent = `${provider.name} (Rate Limited)`;
+                                    option.disabled = true;
+                                } else if (remaining <= 3) {
+                                    option.textContent = `${provider.name} (${remaining} left)`;
+                                } else {
+                                    option.textContent = provider.name;
+                                }
+                            } else {
+                                option.textContent = provider.name;
+                            }
+
+                            select.appendChild(option);
+                        }
+                    });
+
+                    // Update current provider
+                    currentAIProvider = data.data.current_provider;
+                    select.value = currentAIProvider;
+
+                    // Update status
+                    const currentProviderInfo = providers[currentAIProvider];
+                    if (currentProviderInfo && currentProviderInfo.status === 'available') {
+                        statusText.textContent = `${currentProviderInfo.name} Ready`;
+                        statusDot.className = 'status-dot';
+                    } else {
+                        statusText.textContent = 'Provider Error';
+                        statusDot.className = 'status-dot error';
+                    }
+
+                    // Show setup instructions if ChatGPT is not configured
+                    if (providers.chatgpt && providers.chatgpt.status === 'not_configured') {
+                        console.log('💡 To enable ChatGPT: Get API key from https://platform.openai.com/api-keys');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load AI providers:', error);
+                document.getElementById('providerStatusText').textContent = 'Connection Error';
+                document.getElementById('providerStatusDot').className = 'status-dot error';
+            }
+        }
+
+        async function switchAIProvider() {
+            const select = document.getElementById('aiProviderSelect');
+            const newProvider = select.value;
+
+            if (newProvider === currentAIProvider) return;
+
+            try {
+                const response = await fetch('/ai/provider', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: newProvider })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAIProvider = newProvider;
+                    document.getElementById('providerStatusText').textContent = data.message;
+                    document.getElementById('providerStatusDot').className = 'status-dot';
+
+                    // Add system message
+                    addMessage('system', `Switched to ${data.message}`, false);
+                } else {
+                    // Revert selection
+                    select.value = currentAIProvider;
+                    alert(`Failed to switch AI provider: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Failed to switch AI provider:', error);
+                select.value = currentAIProvider;
+                alert('Failed to switch AI provider. Please try again.');
+            }
+        }
+
+        // Voice Input Functions
+        function toggleVoiceInput() {
+            const btn = document.getElementById('voiceBtn');
+
+            if (!voiceInputActive) {
+                startVoiceInput();
+            } else {
+                stopVoiceInput();
+            }
+        }
+
+        function startVoiceInput() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Voice input is not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            speechRecognition = new SpeechRecognition();
+
+            speechRecognition.continuous = false;
+            speechRecognition.interimResults = false;
+            speechRecognition.lang = 'en-US';
+
+            speechRecognition.onstart = function() {
+                voiceInputActive = true;
+                const btn = document.getElementById('voiceBtn');
+                btn.textContent = '🔴 Listening...';
+                btn.classList.add('active');
+            };
+
+            speechRecognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('messageInput').value = transcript;
+                stopVoiceInput();
+            };
+
+            speechRecognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopVoiceInput();
+                alert('Voice input error. Please try again.');
+            };
+
+            speechRecognition.onend = function() {
+                stopVoiceInput();
+            };
+
+            speechRecognition.start();
+        }
+
+        function stopVoiceInput() {
+            if (speechRecognition) {
+                speechRecognition.stop();
+            }
+
+            voiceInputActive = false;
+            const btn = document.getElementById('voiceBtn');
+            btn.textContent = '🎤 Voice Input';
+            btn.classList.remove('active');
+        }
+
+        // Voice Output Functions
+        function speakMessage(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Text-to-speech not supported');
+                return;
+            }
+
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+
+            // Clean text for speech
+            const cleanText = text.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').replace(/\[.*?\]/g, '');
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+
+            // Enhanced voice selection for better quality
+            const voices = speechSynthesis.getVoices();
+
+            // Prefer Google voices for Gemini responses, Microsoft for others
+            let preferredVoice = null;
+
+            if (currentAIProvider === 'gemini') {
+                // Use Google voices for Gemini responses
+                preferredVoice = voices.find(voice =>
+                    voice.name.includes('Google') && voice.lang.startsWith('en')
+                ) || voices.find(voice =>
+                    voice.name.includes('Chrome') && voice.lang.startsWith('en')
+                );
+            }
+
+            // Fallback to any good English voice
+            if (!preferredVoice) {
+                preferredVoice = voices.find(voice =>
+                    (voice.name.includes('Microsoft') || voice.name.includes('Google')) &&
+                    voice.lang.startsWith('en')
+                ) || voices.find(voice => voice.lang.startsWith('en'));
+            }
+
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+                console.log(`Using voice: ${preferredVoice.name} for ${currentAIProvider}`);
+            }
+
+            // Add voice feedback for AI provider
+            utterance.onstart = function() {
+                console.log(`Speaking ${currentAIProvider} response`);
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+
+        // Gemini Voice Chat Functions
+        async function toggleGeminiVoiceChat() {
+            const btn = document.getElementById('geminiVoiceBtn');
+
+            if (!geminiVoiceActive) {
+                await startGeminiVoiceChat();
+            } else {
+                stopGeminiVoiceChat();
+            }
+        }
+
+        async function startGeminiVoiceChat() {
+            try {
+                // Check if Gemini is the current provider
+                if (currentAIProvider !== 'gemini') {
+                    // Switch to Gemini for voice chat
+                    await switchToGemini();
+                }
+
+                // Request microphone access
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        sampleRate: 44100
+                    }
+                });
+
+                // Setup MediaRecorder for high-quality audio
+                const options = {
+                    mimeType: 'audio/webm;codecs=opus',
+                    audioBitsPerSecond: 128000
+                };
+
+                mediaRecorder = new MediaRecorder(stream, options);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await processGeminiVoiceInput(audioBlob);
+                };
+
+                // Start recording
+                mediaRecorder.start();
+                geminiVoiceActive = true;
+
+                const btn = document.getElementById('geminiVoiceBtn');
+                btn.textContent = '🔴 Recording for Gemini...';
+                btn.classList.add('active');
+
+                console.log('Gemini voice chat started');
+
+                // Auto-stop after 30 seconds to prevent long recordings
+                setTimeout(() => {
+                    if (geminiVoiceActive) {
+                        stopGeminiVoiceChat();
+                    }
+                }, 30000);
+
+            } catch (error) {
+                console.error('Gemini voice chat error:', error);
+                alert('Could not access microphone for Gemini voice chat. Please check permissions.');
+                stopGeminiVoiceChat();
+            }
+        }
+
+        function stopGeminiVoiceChat() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+
+                // Stop all audio tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+
+            geminiVoiceActive = false;
+            const btn = document.getElementById('geminiVoiceBtn');
+            btn.textContent = '🎙️ Gemini Voice Chat';
+            btn.classList.remove('active');
+
+            console.log('Gemini voice chat stopped');
+        }
+
+        async function processGeminiVoiceInput(audioBlob) {
+            try {
+                showTypingIndicator();
+
+                // Create FormData for audio upload
+                const formData = new FormData();
+                formData.append('file', audioBlob, 'voice_input.webm');
+                formData.append('session_id', sessionId);
+                formData.append('include_tamil', voiceLanguagePreference !== 'en');
+
+                console.log('Sending audio to Gemini for bilingual processing...');
+
+                const response = await fetch('/voice/chat', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.success) {
+                    // Add user message (transcribed)
+                    addMessage('user', `🎤 "${data.user_text}"`, false);
+
+                    // Add AI response with fallback indicator
+                    if (data.fallback_used) {
+                        addMessage('bot', `🔄 ${data.ai_response}`, false);
+                        addMessage('system', `Switched to ${data.fallback_provider || 'backup'} due to Gemini rate limits`, false);
+                    } else {
+                        addMessage('bot', data.ai_response, false);
+                    }
+
+                    // Add Tamil response if available
+                    if (data.tamil_response && voiceLanguagePreference !== 'en') {
+                        addMessage('bot', `🇮🇳 Tamil: ${data.tamil_response}`, false);
+                    }
+
+                    // Handle voice output based on language preference
+                    await handleBilingualVoiceOutput(data);
+
+                    console.log('Voice chat completed successfully');
+                } else {
+                    addMessage('system', `Voice chat failed: ${data.message}`, false);
+                    console.error('Voice chat failed:', data.message);
+
+                    // Suggest switching providers if rate limited
+                    if (data.message && data.message.includes('rate limit')) {
+                        addMessage('system', '💡 Tip: Switch to IBM Granite for immediate responses without rate limits', false);
+                    }
+                }
+
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Gemini voice processing error:', error);
+                addMessage('system', 'Voice processing failed. Please try again.', false);
+            }
+        }
+
+        async function handleBilingualVoiceOutput(data) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Text-to-speech not supported');
+                return;
+            }
+
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+
+            const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            try {
+                if (voiceLanguagePreference === 'both') {
+                    // Speak both English and Tamil
+                    console.log('Speaking in both English and Tamil');
+
+                    // First speak English
+                    if (data.optimized_speech_text_english) {
+                        await speakText(data.optimized_speech_text_english, 'en', data.speech_config_english);
+                        await delay(1000); // 1 second pause between languages
+                    }
+
+                    // Then speak Tamil
+                    if (data.optimized_speech_text_tamil) {
+                        await speakText(data.optimized_speech_text_tamil, 'ta', data.speech_config_tamil);
+                    }
+
+                } else if (voiceLanguagePreference === 'en') {
+                    // Speak only English
+                    if (data.optimized_speech_text_english) {
+                        await speakText(data.optimized_speech_text_english, 'en', data.speech_config_english);
+                    }
+
+                } else if (voiceLanguagePreference === 'ta') {
+                    // Speak only Tamil
+                    if (data.optimized_speech_text_tamil) {
+                        await speakText(data.optimized_speech_text_tamil, 'ta', data.speech_config_tamil);
+                    } else {
+                        // Fallback to English if Tamil not available
+                        console.log('Tamil not available, falling back to English');
+                        if (data.optimized_speech_text_english) {
+                            await speakText(data.optimized_speech_text_english, 'en', data.speech_config_english);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Bilingual voice output error:', error);
+            }
+        }
+
+        function speakText(text, language, speechConfig) {
+            return new Promise((resolve, reject) => {
+                if (!text) {
+                    resolve();
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                // Apply enhanced speech configuration
+                if (speechConfig) {
+                    utterance.rate = speechConfig.speed || 0.9;
+                    utterance.pitch = speechConfig.pitch || 1.0;
+                    utterance.volume = speechConfig.volume || 0.8;
+                }
+
+                // Enhanced voice selection for better Tamil support
+                const voices = speechSynthesis.getVoices();
+                let selectedVoice = null;
+
+                if (language === 'ta') {
+                    console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+
+                    // Priority order for Tamil voices
+                    const tamilVoicePreferences = [
+                        // Google Tamil voices (best quality)
+                        voice => voice.name.toLowerCase().includes('google') && voice.lang.startsWith('ta'),
+                        // Microsoft Tamil voices
+                        voice => voice.name.toLowerCase().includes('microsoft') && voice.lang.startsWith('ta'),
+                        // Any Tamil voice
+                        voice => voice.lang.startsWith('ta'),
+                        // Tamil India specific
+                        voice => voice.lang === 'ta-IN',
+                        // Hindi as fallback (similar phonetics)
+                        voice => voice.lang.startsWith('hi') && voice.name.toLowerCase().includes('female'),
+                        // Any Indian language voice
+                        voice => voice.lang.includes('-IN'),
+                        // Last resort: any voice with 'tamil' in name
+                        voice => voice.name.toLowerCase().includes('tamil')
+                    ];
+
+                    for (const preference of tamilVoicePreferences) {
+                        selectedVoice = voices.find(preference);
+                        if (selectedVoice) break;
+                    }
+
+                    if (selectedVoice) {
+                        utterance.lang = 'ta-IN';
+                        utterance.rate = 0.7; // Slower for Tamil clarity
+                        utterance.pitch = 1.1; // Higher pitch for better Tamil pronunciation
+                        console.log(`✅ Using Tamil voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+                    } else {
+                        console.log('⚠️ No Tamil voice found, using default with Tamil settings');
+                        utterance.lang = 'ta-IN';
+                        utterance.rate = 0.6; // Very slow for clarity
+                        utterance.pitch = 1.2;
+                    }
+                } else {
+                    // Enhanced English voice selection
+                    const englishVoicePreferences = [
+                        voice => voice.name.toLowerCase().includes('google') && voice.lang.startsWith('en-us'),
+                        voice => voice.name.toLowerCase().includes('microsoft') && voice.lang.startsWith('en-us'),
+                        voice => voice.lang === 'en-US' && voice.name.toLowerCase().includes('female'),
+                        voice => voice.lang.startsWith('en-us'),
+                        voice => voice.lang.startsWith('en')
+                    ];
+
+                    for (const preference of englishVoicePreferences) {
+                        selectedVoice = voices.find(preference);
+                        if (selectedVoice) break;
+                    }
+
+                    if (selectedVoice) {
+                        utterance.lang = 'en-US';
+                        console.log(`✅ Using English voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+                    }
+                }
+
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+
+                utterance.onstart = () => {
+                    console.log(`🔊 Speaking in ${language}: ${text.substring(0, 50)}...`);
+                };
+
+                utterance.onend = () => {
+                    console.log(`✅ Completed speaking in ${language}`);
+                    resolve();
+                };
+
+                utterance.onerror = (error) => {
+                    console.error(`❌ Speech error in ${language}:`, error);
+                    // Don't reject, just resolve to continue
+                    resolve();
+                };
+
+                // Add extra delay for Tamil to ensure proper pronunciation
+                if (language === 'ta') {
+                    setTimeout(() => {
+                        speechSynthesis.speak(utterance);
+                    }, 200);
+                } else {
+                    speechSynthesis.speak(utterance);
+                }
+            });
+        }
+
+        function updateVoiceLanguage() {
+            const select = document.getElementById('voiceLanguage');
+            voiceLanguagePreference = select.value;
+            console.log(`Voice language preference updated to: ${voiceLanguagePreference}`);
+
+            // Show feedback to user
+            const statusText = document.getElementById('providerStatusText');
+            const originalText = statusText.textContent;
+
+            if (voiceLanguagePreference === 'both') {
+                statusText.textContent = 'Voice: English + Tamil';
+            } else if (voiceLanguagePreference === 'en') {
+                statusText.textContent = 'Voice: English Only';
+            } else if (voiceLanguagePreference === 'ta') {
+                statusText.textContent = 'Voice: Tamil Only';
+            }
+
+            // Restore original text after 2 seconds
+            setTimeout(() => {
+                statusText.textContent = originalText;
+            }, 2000);
+        }
+
+        async function testTamilVoice() {
+            console.log('🧪 Testing Tamil voice quality...');
+
+            // Test phrases in Tamil
+            const testPhrases = [
+                'வணக்கம். நான் உங்கள் நிதி ஆலோசகர்.',
+                'ஐம்பது முப்பது இருபது விதியைப் பயன்படுத்தவும்.',
+                'உங்கள் வருமானத்தில் இருபது சதவீதம் சேமிக்கவும்.'
+            ];
+
+            const statusText = document.getElementById('providerStatusText');
+            const originalText = statusText.textContent;
+
+            try {
+                statusText.textContent = 'Testing Tamil Voice...';
+
+                for (let i = 0; i < testPhrases.length; i++) {
+                    const phrase = testPhrases[i];
+                    console.log(`🔊 Testing phrase ${i + 1}: ${phrase}`);
+
+                    statusText.textContent = `Tamil Test ${i + 1}/3`;
+
+                    await speakText(phrase, 'ta', {
+                        speed: 0.7,
+                        pitch: 1.1,
+                        volume: 0.9
+                    });
+
+                    // Pause between phrases
+                    if (i < testPhrases.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+
+                statusText.textContent = 'Tamil Voice Test Complete!';
+                console.log('✅ Tamil voice test completed');
+
+                // Show completion message
+                addMessage('system', '🎵 Tamil voice test completed! How did it sound? If the quality is poor, your device may have limited Tamil voice support.', false);
+
+            } catch (error) {
+                console.error('❌ Tamil voice test failed:', error);
+                statusText.textContent = 'Tamil Voice Test Failed';
+                addMessage('system', '❌ Tamil voice test failed. Your device may not support Tamil text-to-speech.', false);
+            }
+
+            // Restore original text after 3 seconds
+            setTimeout(() => {
+                statusText.textContent = originalText;
+            }, 3000);
+        }
+
+        async function switchToGemini() {
+            try {
+                const response = await fetch('/ai/provider', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: 'gemini' })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentAIProvider = 'gemini';
+                    document.getElementById('aiProviderSelect').value = 'gemini';
+                    document.getElementById('providerStatusText').textContent = 'Google Gemini Ready';
+                    console.log('Switched to Gemini for voice chat');
+                }
+            } catch (error) {
+                console.error('Failed to switch to Gemini:', error);
+            }
+        }
+
+        // File Upload Functions
+        function triggerFileUpload() {
+            document.getElementById('fileInput').click();
+        }
+
+        async function handleFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) return;
+
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('session_id', sessionId);
+
+            try {
+                showTypingIndicator();
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                hideTypingIndicator();
+
+                if (data.success) {
+                    addMessage('user', `📁 Uploaded: ${file.name}`, true);
+                    addMessage('bot', data.message, false);
+
+                    if (data.analysis) {
+                        addMessage('bot', `Analysis: ${JSON.stringify(data.analysis, null, 2)}`, false);
+                    }
+                } else {
+                    addMessage('system', `Upload failed: ${data.message}`, false);
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('File upload error:', error);
+                addMessage('system', 'File upload failed. Please try again.', false);
+            }
+
+            // Clear file input
+            fileInput.value = '';
+        }
+
+        // Voice System Initialization
+        function initializeVoiceSystem() {
+            if ('speechSynthesis' in window) {
+                // Load voices
+                const loadVoices = () => {
+                    const voices = speechSynthesis.getVoices();
+                    console.log('🎵 Available voices loaded:', voices.length);
+
+                    // Check for Tamil voices
+                    const tamilVoices = voices.filter(voice =>
+                        voice.lang.startsWith('ta') ||
+                        voice.name.toLowerCase().includes('tamil')
+                    );
+
+                    const hindiVoices = voices.filter(voice => voice.lang.startsWith('hi'));
+                    const englishVoices = voices.filter(voice => voice.lang.startsWith('en'));
+
+                    console.log(`🇮🇳 Tamil voices found: ${tamilVoices.length}`);
+                    console.log(`🇮🇳 Hindi voices (fallback): ${hindiVoices.length}`);
+                    console.log(`🇺🇸 English voices: ${englishVoices.length}`);
+
+                    if (tamilVoices.length > 0) {
+                        console.log('✅ Tamil voice support available');
+                        tamilVoices.forEach(voice => {
+                            console.log(`   - ${voice.name} (${voice.lang})`);
+                        });
+                    } else if (hindiVoices.length > 0) {
+                        console.log('⚠️ No Tamil voices, Hindi available as fallback');
+                    } else {
+                        console.log('❌ No Tamil or Hindi voices available');
+                    }
+
+                    // Update voice language selector status
+                    updateVoiceAvailabilityStatus(tamilVoices.length > 0);
+                };
+
+                // Load voices immediately if available
+                if (speechSynthesis.getVoices().length > 0) {
+                    loadVoices();
+                } else {
+                    // Wait for voices to load
+                    speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            } else {
+                console.log('❌ Speech synthesis not supported');
+                updateVoiceAvailabilityStatus(false);
+            }
+        }
+
+        function updateVoiceAvailabilityStatus(tamilAvailable) {
+            const voiceSelect = document.getElementById('voiceLanguage');
+            const options = voiceSelect.querySelectorAll('option');
+
+            options.forEach(option => {
+                if (option.value === 'ta' || option.value === 'both') {
+                    if (!tamilAvailable) {
+                        option.textContent = option.textContent + ' (Limited)';
+                        option.style.color = '#6c757d';
+                    }
+                }
+            });
+
+            if (!tamilAvailable) {
+                console.log('⚠️ Tamil voice quality may be limited on this device');
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show onboarding modal
+            document.getElementById('onboardingModal').style.display = 'flex';
+
+            // Load AI providers
+            loadAIProviders();
+
+            // Initialize voice system
+            initializeVoiceSystem();
+        });
+    </script>
+</body>
+</html>

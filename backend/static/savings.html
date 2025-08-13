@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Planner - Taxora</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; color: #333; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; margin-bottom: 30px; border-bottom: 2px solid #e9ecef; }
+        .nav-tab { padding: 15px 30px; background: none; border: none; font-size: 1.1rem; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+        .form-control { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; }
+        .form-control:focus { outline: none; border-color: #667eea; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .goal-card { background: #f8f9fa; border-radius: 15px; padding: 25px; margin: 20px 0; border-left: 4px solid #667eea; }
+        .progress-bar { width: 100%; height: 20px; background: #e9ecef; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #28a745, #20c997); transition: width 0.3s; }
+        .ai-suggestions { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .notification { padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .notification.reminder { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .notification.behind { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .back-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 20px; }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .metric-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; padding: 20px; text-align: center; }
+        .metric-value { font-size: 2rem; font-weight: bold; color: #667eea; }
+        .metric-label { color: #6c757d; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Savings Planner</h1>
+            <p>AI-Powered Personal Savings Management</p>
+        </div>
+        
+        <div class="content">
+            <a href="/static/index.html" class="back-btn">← Back to Home</a>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('create-goal')">Create Goal</button>
+                <button class="nav-tab" onclick="showTab('track-savings')">Track Savings</button>
+                <button class="nav-tab" onclick="showTab('analysis')">Analysis</button>
+                <button class="nav-tab" onclick="showTab('notifications')">Notifications</button>
+            </div>
+            
+            <!-- Create Goal Tab -->
+            <div id="create-goal" class="tab-content active">
+                <h2>🎯 Create Savings Goal</h2>
+                <form id="goalForm">
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" class="form-control" placeholder="e.g., Emergency Fund, Vacation, New Car" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetAmount">Target Amount (₹)</label>
+                            <input type="number" id="targetAmount" class="form-control" placeholder="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthlySalary">Monthly Salary (₹)</label>
+                            <input type="number" id="monthlySalary" class="form-control" placeholder="50000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthlySaving">Monthly Saving Target (₹)</label>
+                            <input type="number" id="monthlySaving" class="form-control" placeholder="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="savingMethod">Saving Method</label>
+                            <select id="savingMethod" class="form-control" required>
+                                <option value="">Select Method</option>
+                                <option value="gpay">Google Pay</option>
+                                <option value="cash">Cash</option>
+                                <option value="bank_account">Bank Account</option>
+                                <option value="fixed_deposit">Fixed Deposit</option>
+                                <option value="mutual_fund">Mutual Fund</option>
+                                <option value="digital_wallet">Digital Wallet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetDate">Target Date</label>
+                            <input type="date" id="targetDate" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" class="form-control" rows="3" placeholder="Describe your savings goal and why it's important to you"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">🚀 Create Goal with AI Suggestions</button>
+                </form>
+                
+                <div id="goalResult" style="display: none;"></div>
+            </div>
+            
+            <!-- Track Savings Tab -->
+            <div id="track-savings" class="tab-content">
+                <h2>📊 Track Your Savings</h2>
+                <div id="goalsList"></div>
+                
+                <div id="addEntryForm" style="display: none;">
+                    <h3>Add Savings Entry</h3>
+                    <form id="entryForm">
+                        <input type="hidden" id="selectedGoalId">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="entryAmount">Amount Saved (₹)</label>
+                                <input type="number" id="entryAmount" class="form-control" placeholder="1000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="entryMethod">Saving Method</label>
+                                <select id="entryMethod" class="form-control" required>
+                                    <option value="gpay">Google Pay</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="bank_account">Bank Account</option>
+                                    <option value="fixed_deposit">Fixed Deposit</option>
+                                    <option value="mutual_fund">Mutual Fund</option>
+                                    <option value="digital_wallet">Digital Wallet</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="entryDate">Date</label>
+                                <input type="date" id="entryDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="entryDescription">Description (Optional)</label>
+                            <input type="text" id="entryDescription" class="form-control" placeholder="e.g., Salary savings, Bonus money">
+                        </div>
+                        <button type="submit" class="btn btn-primary">💰 Add Savings Entry</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Analysis Tab -->
+            <div id="analysis" class="tab-content">
+                <h2>📈 AI-Powered Analysis</h2>
+                <div id="analysisContent"></div>
+            </div>
+            
+            <!-- Notifications Tab -->
+            <div id="notifications" class="tab-content">
+                <h2>🔔 Savings Notifications</h2>
+                <div id="notificationsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGoals = [];
+        
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load content based on tab
+            if (tabName === 'track-savings') {
+                loadGoals();
+            } else if (tabName === 'notifications') {
+                loadNotifications();
+            }
+        }
+        
+        // Create savings goal
+        document.getElementById('goalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const goalData = {
+                goal_name: document.getElementById('goalName').value,
+                target_amount: parseFloat(document.getElementById('targetAmount').value),
+                monthly_salary: parseFloat(document.getElementById('monthlySalary').value),
+                monthly_saving_target: parseFloat(document.getElementById('monthlySaving').value),
+                saving_method: document.getElementById('savingMethod').value,
+                target_date: document.getElementById('targetDate').value,
+                description: document.getElementById('description').value
+            };
+            
+            try {
+                const response = await fetch('/savings/goal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 'default_user',
+                        goal_data: goalData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayGoalResult(result);
+                    document.getElementById('goalForm').reset();
+                } else {
+                    alert('Error creating goal: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        function displayGoalResult(result) {
+            const resultDiv = document.getElementById('goalResult');
+            resultDiv.innerHTML = `
+                <div class="goal-card">
+                    <h3>✅ Goal Created Successfully!</h3>
+                    <p><strong>Goal:</strong> ${result.goal.goal_name}</p>
+                    <p><strong>Target:</strong> ₹${result.goal.target_amount.toLocaleString()}</p>
+                    <p><strong>Monthly Target:</strong> ₹${result.goal.monthly_saving_target.toLocaleString()}</p>
+                    
+                    <div class="ai-suggestions">
+                        <h4>🤖 AI-Powered Suggestions:</h4>
+                        <ul>
+                            ${result.ai_suggestions.suggestions ? result.ai_suggestions.suggestions.map(s => `<li>${s}</li>`).join('') : '<li>Save consistently and track progress</li>'}
+                        </ul>
+                        
+                        <h4>💡 Areas to Reduce Expenses:</h4>
+                        <ul>
+                            ${result.ai_suggestions.reduce_areas ? result.ai_suggestions.reduce_areas.map(s => `<li>${s}</li>`).join('') : '<li>Review monthly expenses</li>'}
+                        </ul>
+                        
+                        <h4>📈 Ways to Increase Savings:</h4>
+                        <ul>
+                            ${result.ai_suggestions.increase_areas ? result.ai_suggestions.increase_areas.map(s => `<li>${s}</li>`).join('') : '<li>Look for additional income sources</li>'}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+        
+        // Load goals for tracking
+        async function loadGoals() {
+            // This would load user's goals - for demo, we'll show a placeholder
+            document.getElementById('goalsList').innerHTML = `
+                <div class="goal-card">
+                    <h3>📝 Your Savings Goals</h3>
+                    <p>Create a goal first to start tracking your savings progress!</p>
+                    <p>Goals will appear here once created.</p>
+                </div>
+            `;
+        }
+        
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/savings/notifications/default_user');
+                const result = await response.json();
+                
+                const notificationsDiv = document.getElementById('notificationsContent');
+                
+                if (result.success && result.notifications.length > 0) {
+                    notificationsDiv.innerHTML = result.notifications.map(notification => `
+                        <div class="notification ${notification.type}">
+                            <h4>${notification.goal_name}</h4>
+                            <p>${notification.message}</p>
+                            ${notification.ai_motivation ? `<p><em>💪 ${notification.ai_motivation}</em></p>` : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    notificationsDiv.innerHTML = `
+                        <div class="goal-card">
+                            <h3>🔔 No Notifications</h3>
+                            <p>You're all caught up! Keep up the great work with your savings goals.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('notificationsContent').innerHTML = `
+                    <div class="goal-card">
+                        <h3>⚠️ Error Loading Notifications</h3>
+                        <p>Unable to load notifications at this time.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Set default date to today
+        document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+        
+        // Set default target date to 1 year from now
+        const nextYear = new Date();
+        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        document.getElementById('targetDate').value = nextYear.toISOString().split('T')[0];
+    </script>
+</body>
+</html>

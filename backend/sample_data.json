@@ -1,0 +1,14 @@
+[
+  {
+    "persona": "student",
+    "income": 1500,
+    "expenses": {"rent": 500, "food": 300, "other": 150},
+    "goal": "save for laptop"
+  },
+  {
+    "persona": "professional",
+    "income": 4000,
+    "expenses": {"rent": 1200, "food": 500, "transport": 200},
+    "goal": "build emergency fund"
+  }
+]

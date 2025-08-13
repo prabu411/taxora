@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxora - AI-Powered Conversational Finance Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.3); }
+            100% { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.5); }
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .feature-card p {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .api-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .api-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .api-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .api-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-block;
+        }
+
+        .api-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .status-section {
+            background: #e8f5e8;
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Quotes Section Styles */
+        .quotes-section {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quote-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 1rem;
+            color: white;
+            margin: 0;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Developer Section Styles */
+        .developer-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.95) 100%);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 30px 0;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developer-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .developer-title {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .developer-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .developer-subtitle {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .developer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .developer-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .developer-card:hover::before {
+            left: 100%;
+        }
+
+        .developer-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .developer-avatar {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .developer-name {
+            color: #495057;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .developer-role {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .developer-quote {
+            color: #6c757d;
+            font-style: italic;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .api-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .quotes-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .quote-card {
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .developer-section {
+                padding: 20px;
+            }
+
+            .developer-title {
+                font-size: 1.8rem;
+            }
+
+            .developer-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .developer-card {
+                padding: 20px;
+            }
+
+            .developer-avatar {
+                font-size: 3rem;
+            }
+
+            .developer-name {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Taxora</h1>
+            <p>AI-Powered Conversational Finance Assistant</p>
+            <p class="tagline">Where Technology Meets Financial Wisdom</p>
+
+            <!-- Inspirational Quotes Section -->
+            <div class="quotes-section">
+                <div class="quote-card">
+                    <p class="quote-text">"Empowering financial wisdom through intelligent conversations"</p>
+                </div>
+                <div class="quote-card">
+                    <p class="quote-text">"Your personal AI finance mentor, available 24/7"</p>
+                </div>
+                <div class="quote-card">
+                    <p class="quote-text">"Making complex financial decisions simple and accessible"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Developer Team Section - Prominently Displayed -->
+        <div class="developer-section">
+            <h2 class="developer-title">👨‍💻 Meet Our Development Team</h2>
+            <p class="developer-subtitle">The brilliant minds behind Taxora's AI-powered financial intelligence</p>
+            <div class="developer-grid">
+                <div class="developer-card">
+                    <div class="developer-avatar">🚀</div>
+                    <h3 class="developer-name">GaneshPrabu</h3>
+                    <p class="developer-role">Lead AI Developer</p>
+                    <p class="developer-quote">"Building intelligent systems that understand human needs"</p>
+                </div>
+
+                <div class="developer-card">
+                    <div class="developer-avatar">⚡</div>
+                    <h3 class="developer-name">EswaraKumar</h3>
+                    <p class="developer-role">Backend Architect</p>
+                    <p class="developer-quote">"Creating robust foundations for seamless experiences"</p>
+                </div>
+
+                <div class="developer-card">
+                    <div class="developer-avatar">🎨</div>
+                    <h3 class="developer-name">Akshya Nethra</h3>
+                    <p class="developer-role">Frontend Designer</p>
+                    <p class="developer-quote">"Designing intuitive interfaces that inspire confidence"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="status-section">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    API Server is Running Successfully
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>IBM Granite AI Integration</h3>
+                    <p>Powered by IBM's lightweight Granite AI models for fast, intelligent financial conversations</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Multi-AI Provider Support</h3>
+                    <p>Choose from IBM Granite, Google Gemini, and Hugging Face (Multiple Models) for diverse AI perspectives</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎭</div>
+                    <h3>Adaptive Persona System</h3>
+                    <p>Personalized responses based on user role: student, professional, or general</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Context-Aware Interactions</h3>
+                    <p>Maintains conversation context for meaningful, continuous dialogue</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>AI Savings Planner</h3>
+                    <p>Smart savings goals with 30-day plans, progress tracking, and AI-powered financial suggestions</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🏢</div>
+                    <h3>Business Tracker</h3>
+                    <p>Complete business financial management with GST tracking, tax reminders, and compliance tools</p>
+                </div>
+            </div>
+
+            <div class="api-section">
+                <h2>🚀 Get Started</h2>
+                <div class="api-links">
+                    <a href="/static/chat.html" class="api-link">💬 Start Chatting Now</a>
+                    <a href="/static/savings.html" class="api-link">💰 Savings Planner</a>
+                    <a href="/static/business.html" class="api-link">🏢 Business Tracker</a>
+                    <a href="/docs" class="api-link">📚 API Documentation</a>
+                    <a href="/status" class="api-link">⚡ System Status</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <h2 style="color: #495057; margin-bottom: 20px;">🎯 Quick Start</h2>
+                <p style="color: #6c757d; line-height: 1.8; max-width: 600px; margin: 0 auto; margin-bottom: 25px;">
+                    Ready to experience intelligent financial conversations? Click "Start Chatting Now" above to begin your personalized AI finance consultation,
+                    or explore our API documentation for integration options.
+                </p>
+                <a href="/static/chat.html" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-block; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    🚀 Launch Chat Interface
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Taxora - Advanced Conversational AI Finance Assistant v2.0.0</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Crafted with ❤️ by GaneshPrabu, EswaraKumar & Akshya Nethra</p>
+        </div>
+    </div>
+</body>
+</html>

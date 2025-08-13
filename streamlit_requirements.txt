@@ -1,0 +1,39 @@
+# Streamlit Frontend Requirements for Taxora AI Finance Assistant
+
+# Core Streamlit
+streamlit>=1.28.0
+streamlit-option-menu>=0.3.6
+
+# Data Processing & Analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.15.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# HTTP Requests
+requests>=2.31.0
+httpx>=0.24.0
+
+# Date/Time Handling
+python-dateutil>=2.8.0
+
+# JSON Processing
+jsonschema>=4.17.0
+
+# Additional UI Components
+streamlit-aggrid>=0.3.4
+streamlit-elements>=0.1.0
+streamlit-plotly-events>=0.0.6
+
+# Authentication (if needed)
+streamlit-authenticator>=0.2.3
+
+# File Handling
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# Environment Variables
+python-dotenv>=1.0.0

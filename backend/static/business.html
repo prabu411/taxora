@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Tracker - Taxora</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; color: #333; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .content { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; margin-bottom: 30px; border-bottom: 2px solid #e9ecef; flex-wrap: wrap; }
+        .nav-tab { padding: 15px 20px; background: none; border: none; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+        .form-control { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; }
+        .form-control:focus { outline: none; border-color: #667eea; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .business-card { background: #f8f9fa; border-radius: 15px; padding: 25px; margin: 20px 0; border-left: 4px solid #667eea; }
+        .transaction-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .credit { border-left: 4px solid #28a745; }
+        .debit { border-left: 4px solid #dc3545; }
+        .gst-summary { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .reminder-card { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .back-btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 20px; }
+        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .metric-card { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; padding: 20px; text-align: center; }
+        .metric-value { font-size: 2rem; font-weight: bold; color: #667eea; }
+        .metric-label { color: #6c757d; margin-top: 5px; }
+        .gst-rate-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .gst-5 { background: #d4edda; color: #155724; }
+        .gst-12 { background: #cce5ff; color: #004085; }
+        .gst-18 { background: #fff3cd; color: #856404; }
+        .gst-28 { background: #f8d7da; color: #721c24; }
+        .gst-0 { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Business Tracker</h1>
+            <p>Advanced Business Financial Management with GST Tracking</p>
+        </div>
+        
+        <div class="content">
+            <a href="/static/index.html" class="back-btn">← Back to Home</a>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('setup')">Business Setup</button>
+                <button class="nav-tab" onclick="showTab('transactions')">Transactions</button>
+                <button class="nav-tab" onclick="showTab('gst-tracking')">GST Tracking</button>
+                <button class="nav-tab" onclick="showTab('tax-management')">Tax Management</button>
+                <button class="nav-tab" onclick="showTab('analytics')">Analytics</button>
+                <button class="nav-tab" onclick="showTab('reminders')">Tax Reminders</button>
+            </div>
+            
+            <!-- Business Setup Tab -->
+            <div id="setup" class="tab-content active">
+                <h2>🏢 Business Profile Setup</h2>
+                <form id="businessForm">
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="businessName">Business Name</label>
+                            <input type="text" id="businessName" class="form-control" placeholder="Your Business Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerName">Owner Name</label>
+                            <input type="text" id="ownerName" class="form-control" placeholder="Business Owner Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstNumber">GST Number</label>
+                            <input type="text" id="gstNumber" class="form-control" placeholder="22AAAAA0000A1Z5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessType">Business Type</label>
+                            <select id="businessType" class="form-control" required>
+                                <option value="">Select Type</option>
+                                <option value="sole_proprietorship">Sole Proprietorship</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="private_limited">Private Limited</option>
+                                <option value="public_limited">Public Limited</option>
+                                <option value="llp">LLP</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sector">Business Sector</label>
+                            <select id="sector" class="form-control" required>
+                                <option value="">Select Sector</option>
+                                <option value="goods_5">Goods (5% GST)</option>
+                                <option value="goods_12">Goods (12% GST)</option>
+                                <option value="goods_18">Goods (18% GST)</option>
+                                <option value="goods_28">Goods (28% GST)</option>
+                                <option value="services_18">Services (18% GST)</option>
+                                <option value="exempt">Exempt (0% GST)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="registrationDate">Registration Date</label>
+                            <input type="date" id="registrationDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <h4>📋 Additional Business Details</h4>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="panNumber">PAN Number</label>
+                            <input type="text" id="panNumber" class="form-control" placeholder="AAAAA0000A">
+                        </div>
+                        <div class="form-group">
+                            <label for="tanNumber">TAN Number</label>
+                            <input type="text" id="tanNumber" class="form-control" placeholder="AAAA00000A">
+                        </div>
+                        <div class="form-group">
+                            <label for="cinNumber">CIN Number (if applicable)</label>
+                            <input type="text" id="cinNumber" class="form-control" placeholder="U12345AB2020PTC123456">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" class="form-control" placeholder="+91 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" class="form-control" placeholder="business@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" class="form-control" placeholder="Mumbai">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" class="form-control" placeholder="Maharashtra">
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" id="pincode" class="form-control" placeholder="400001">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Complete Address</label>
+                        <textarea id="address" class="form-control" rows="3" placeholder="Complete business address"></textarea>
+                    </div>
+
+                    <h4>🏦 Banking Details</h4>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="bankAccount">Bank Account Number</label>
+                            <input type="text" id="bankAccount" class="form-control" placeholder="1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label for="bankIfsc">Bank IFSC Code</label>
+                            <input type="text" id="bankIfsc" class="form-control" placeholder="SBIN0001234">
+                        </div>
+                    </div>
+
+                    <h4>📜 Tax Registration Numbers</h4>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="professionalTaxNumber">Professional Tax Number</label>
+                            <input type="text" id="professionalTaxNumber" class="form-control" placeholder="PT123456">
+                        </div>
+                        <div class="form-group">
+                            <label for="esiNumber">ESI Number</label>
+                            <input type="text" id="esiNumber" class="form-control" placeholder="12345678901234567">
+                        </div>
+                        <div class="form-group">
+                            <label for="pfNumber">PF Number</label>
+                            <input type="text" id="pfNumber" class="form-control" placeholder="AB/DEL/12345">
+                        </div>
+                        <div class="form-group">
+                            <label for="tradeLicenseNumber">Trade License Number</label>
+                            <input type="text" id="tradeLicenseNumber" class="form-control" placeholder="TL123456">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">🚀 Create Enhanced Business Profile</button>
+                </form>
+                
+                <div id="businessResult" style="display: none;"></div>
+            </div>
+            
+            <!-- Transactions Tab -->
+            <div id="transactions" class="tab-content">
+                <h2>💰 Transaction Management</h2>
+                
+                <div class="business-card">
+                    <h3>Add New Transaction</h3>
+                    <form id="transactionForm">
+                        <input type="hidden" id="businessId" value="">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="transactionType">Transaction Type</label>
+                                <select id="transactionType" class="form-control" required>
+                                    <option value="">Select Type</option>
+                                    <option value="credit">Credit (Income)</option>
+                                    <option value="debit">Debit (Expense)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount (₹)</label>
+                                <input type="number" id="amount" class="form-control" placeholder="10000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <input type="text" id="category" class="form-control" placeholder="Sales, Purchase, Office Rent, etc." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="partyName">Party Name</label>
+                                <input type="text" id="partyName" class="form-control" placeholder="Customer/Vendor Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="partyGst">Party GST Number</label>
+                                <input type="text" id="partyGst" class="form-control" placeholder="22AAAAA0000A1Z5">
+                            </div>
+                            <div class="form-group">
+                                <label for="invoiceNumber">Invoice Number</label>
+                                <input type="text" id="invoiceNumber" class="form-control" placeholder="INV-001">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstApplicable">
+                                <input type="checkbox" id="gstApplicable"> GST Applicable
+                            </label>
+                        </div>
+                        <div id="gstDetails" style="display: none;">
+                            <div class="form-group">
+                                <label for="gstSector">GST Sector</label>
+                                <select id="gstSector" class="form-control">
+                                    <option value="goods_5">Goods (5% GST)</option>
+                                    <option value="goods_12">Goods (12% GST)</option>
+                                    <option value="goods_18">Goods (18% GST)</option>
+                                    <option value="goods_28">Goods (28% GST)</option>
+                                    <option value="services_18">Services (18% GST)</option>
+                                    <option value="exempt">Exempt (0% GST)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" class="form-control" rows="3" placeholder="Transaction details"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💼 Add Transaction</button>
+                    </form>
+                </div>
+                
+                <div id="transactionsList"></div>
+            </div>
+            
+            <!-- Tax Management Tab -->
+            <div id="tax-management" class="tab-content">
+                <h2>📋 Comprehensive Tax Management</h2>
+
+                <div class="business-card">
+                    <h3>Add Tax Record</h3>
+                    <form id="taxForm">
+                        <input type="hidden" id="taxBusinessId" value="">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="taxType">Tax Type</label>
+                                <select id="taxType" class="form-control" required>
+                                    <option value="">Select Tax Type</option>
+                                    <option value="gst">GST</option>
+                                    <option value="income_tax">Income Tax</option>
+                                    <option value="road_tax">Road Tax</option>
+                                    <option value="water_tax">Water Tax</option>
+                                    <option value="municipality_tax">Municipality Tax</option>
+                                    <option value="property_tax">Property Tax</option>
+                                    <option value="professional_tax">Professional Tax</option>
+                                    <option value="electricity_tax">Electricity Tax</option>
+                                    <option value="trade_license">Trade License Fee</option>
+                                    <option value="pollution_tax">Pollution Tax</option>
+                                    <option value="labor_welfare">Labor Welfare Fund</option>
+                                    <option value="esi_contribution">ESI Contribution</option>
+                                    <option value="pf_contribution">PF Contribution</option>
+                                    <option value="other_tax">Other Tax</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxName">Tax Name/Description</label>
+                                <input type="text" id="taxName" class="form-control" placeholder="e.g., Monthly GST Return, Car Road Tax" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxAmount">Tax Amount (₹)</label>
+                                <input type="number" id="taxAmount" class="form-control" placeholder="5000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxAuthority">Tax Authority</label>
+                                <input type="text" id="taxAuthority" class="form-control" placeholder="e.g., GST Department, RTO, Municipality" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxDueDate">Due Date</label>
+                                <input type="date" id="taxDueDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taxStatus">Status</label>
+                                <select id="taxStatus" class="form-control" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="paymentDate">Payment Date (if paid)</label>
+                                <input type="date" id="paymentDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="transactionNumber">Transaction Number</label>
+                                <input type="text" id="transactionNumber" class="form-control" placeholder="TXN123456789">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="taxDescription">Additional Details</label>
+                            <textarea id="taxDescription" class="form-control" rows="3" placeholder="Additional tax details, reference numbers, etc."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💰 Add Tax Record</button>
+                    </form>
+                </div>
+
+                <div class="business-card">
+                    <h3>📊 Tax Summary</h3>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="taxSummaryPeriod">Period</label>
+                            <select id="taxSummaryPeriod" class="form-control">
+                                <option value="month">This Month</option>
+                                <option value="quarter">This Quarter</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="loadTaxSummary()" class="btn btn-primary">📈 Get Tax Summary</button>
+                </div>
+
+                <div id="taxSummaryContent"></div>
+                <div id="taxRecordsList"></div>
+            </div>
+
+            <!-- GST Tracking Tab -->
+            <div id="gst-tracking" class="tab-content">
+                <h2>📊 GST Tracking & Returns</h2>
+                
+                <div class="business-card">
+                    <h3>Monthly GST Summary</h3>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="gstMonth">Month</label>
+                            <select id="gstMonth" class="form-control">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstYear">Year</label>
+                            <input type="number" id="gstYear" class="form-control" value="2024" min="2020" max="2030">
+                        </div>
+                    </div>
+                    <button onclick="loadGSTSummary()" class="btn btn-primary">📈 Get GST Summary</button>
+                </div>
+                
+                <div id="gstSummaryContent"></div>
+            </div>
+            
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-content">
+                <h2>📈 Business Analytics</h2>
+                <div id="analyticsContent"></div>
+            </div>
+            
+            <!-- Tax Reminders Tab -->
+            <div id="reminders" class="tab-content">
+                <h2>🔔 Tax Reminders</h2>
+                <div class="reminder-card">
+                    <h3>📅 Monthly GST Return Reminder</h3>
+                    <p><strong>Due Date:</strong> 20th of every month</p>
+                    <p><strong>Next Due:</strong> <span id="nextDueDate"></span></p>
+                    <button onclick="checkReminders()" class="btn btn-primary">🔍 Check Current Month Status</button>
+                </div>
+                <div id="reminderContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBusinessId = '';
+        
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'analytics') {
+                loadAnalytics();
+            } else if (tabName === 'tax-management') {
+                loadTaxRecords();
+            }
+        }
+        
+        // GST checkbox toggle
+        document.getElementById('gstApplicable').addEventListener('change', function() {
+            const gstDetails = document.getElementById('gstDetails');
+            gstDetails.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Create business profile
+        document.getElementById('businessForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const profileData = {
+                business_name: document.getElementById('businessName').value,
+                owner_name: document.getElementById('ownerName').value,
+                gst_number: document.getElementById('gstNumber').value,
+                business_type: document.getElementById('businessType').value,
+                sector: document.getElementById('sector').value,
+                registration_date: document.getElementById('registrationDate').value,
+                // Enhanced fields
+                pan_number: document.getElementById('panNumber').value,
+                tan_number: document.getElementById('tanNumber').value,
+                cin_number: document.getElementById('cinNumber').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                pincode: document.getElementById('pincode').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                bank_account: document.getElementById('bankAccount').value,
+                bank_ifsc: document.getElementById('bankIfsc').value,
+                // Tax registration details
+                professional_tax_number: document.getElementById('professionalTaxNumber').value,
+                esi_number: document.getElementById('esiNumber').value,
+                pf_number: document.getElementById('pfNumber').value,
+                trade_license_number: document.getElementById('tradeLicenseNumber').value
+            };
+            
+            try {
+                const response = await fetch('/business/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profileData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentBusinessId = result.business_id;
+                    document.getElementById('businessId').value = currentBusinessId;
+                    document.getElementById('taxBusinessId').value = currentBusinessId;
+                    displayBusinessResult(result);
+                    document.getElementById('businessForm').reset();
+                } else {
+                    alert('Error creating business profile: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        function displayBusinessResult(result) {
+            const resultDiv = document.getElementById('businessResult');
+            const aiRecommendations = result.ai_recommendations || {};
+
+            resultDiv.innerHTML = `
+                <div class="business-card">
+                    <h3>✅ Enhanced Business Profile Created Successfully!</h3>
+                    <p><strong>Business:</strong> ${result.profile.business_name}</p>
+                    <p><strong>Owner:</strong> ${result.profile.owner_name}</p>
+                    <p><strong>GST Number:</strong> ${result.profile.gst_number}</p>
+                    <p><strong>Business ID:</strong> ${result.business_id}</p>
+
+                    <div class="gst-summary">
+                        <h4>🤖 AI Tax Setup Recommendations:</h4>
+
+                        <h5>📋 Required Registrations:</h5>
+                        <ul>
+                            ${aiRecommendations.required_registrations ?
+                                aiRecommendations.required_registrations.map(reg => `<li>${reg}</li>`).join('') :
+                                '<li>Standard business registrations</li>'}
+                        </ul>
+
+                        <h5>💰 Applicable Taxes:</h5>
+                        <ul>
+                            ${aiRecommendations.applicable_taxes ?
+                                aiRecommendations.applicable_taxes.map(tax => `<li>${tax}</li>`).join('') :
+                                '<li>Standard business taxes</li>'}
+                        </ul>
+
+                        <h5>📅 Filing Schedule:</h5>
+                        <p>${aiRecommendations.filing_schedule || 'Regular filing required as per regulations'}</p>
+                    </div>
+
+                    <p>✨ You can now start adding transactions, tracking taxes, and managing comprehensive business finances!</p>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+        
+        // Add transaction
+        document.getElementById('transactionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentBusinessId) {
+                alert('Please create a business profile first!');
+                return;
+            }
+            
+            const transactionData = {
+                transaction_type: document.getElementById('transactionType').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                party_name: document.getElementById('partyName').value,
+                party_gst_number: document.getElementById('partyGst').value,
+                invoice_number: document.getElementById('invoiceNumber').value,
+                gst_applicable: document.getElementById('gstApplicable').checked,
+                gst_sector: document.getElementById('gstSector').value,
+                description: document.getElementById('description').value
+            };
+            
+            try {
+                const response = await fetch('/business/transaction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        business_id: currentBusinessId,
+                        transaction_data: transactionData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Transaction added successfully!');
+                    document.getElementById('transactionForm').reset();
+                    loadTransactions();
+                } else {
+                    alert('Error adding transaction: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Add tax record
+        document.getElementById('taxForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!currentBusinessId) {
+                alert('Please create a business profile first!');
+                return;
+            }
+
+            const taxData = {
+                tax_type: document.getElementById('taxType').value,
+                tax_name: document.getElementById('taxName').value,
+                amount: parseFloat(document.getElementById('taxAmount').value),
+                authority: document.getElementById('taxAuthority').value,
+                due_date: document.getElementById('taxDueDate').value,
+                status: document.getElementById('taxStatus').value,
+                payment_date: document.getElementById('paymentDate').value,
+                transaction_number: document.getElementById('transactionNumber').value,
+                description: document.getElementById('taxDescription').value
+            };
+
+            try {
+                const response = await fetch('/business/tax', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        business_id: currentBusinessId,
+                        tax_data: taxData
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Tax record added successfully!');
+                    document.getElementById('taxForm').reset();
+                    loadTaxRecords();
+
+                    // Show AI insights
+                    if (result.ai_insights) {
+                        displayTaxInsights(result.ai_insights);
+                    }
+                } else {
+                    alert('Error adding tax record: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Load tax summary
+        async function loadTaxSummary() {
+            if (!currentBusinessId) {
+                alert('Please create a business profile first!');
+                return;
+            }
+
+            const period = document.getElementById('taxSummaryPeriod').value;
+
+            try {
+                const response = await fetch(`/business/tax-summary/${currentBusinessId}?period=${period}`);
+                const result = await response.json();
+
+                const summaryDiv = document.getElementById('taxSummaryContent');
+
+                if (result.success) {
+                    const summary = result.summary;
+                    const breakdown = summary.tax_breakdown;
+
+                    let breakdownHtml = '';
+                    for (const [taxType, data] of Object.entries(breakdown)) {
+                        breakdownHtml += `
+                            <div class="metric-card">
+                                <div class="metric-value">₹${data.total_amount.toLocaleString()}</div>
+                                <div class="metric-label">${taxType.replace('_', ' ').toUpperCase()}</div>
+                                <small>Paid: ₹${data.paid_amount.toLocaleString()} | Pending: ₹${data.pending_amount.toLocaleString()}</small>
+                            </div>
+                        `;
+                    }
+
+                    summaryDiv.innerHTML = `
+                        <div class="gst-summary">
+                            <h3>📊 Comprehensive Tax Summary - ${period.toUpperCase()}</h3>
+                            <div class="grid">
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${summary.total_tax_paid.toLocaleString()}</div>
+                                    <div class="metric-label">Total Tax Paid</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${summary.total_pending.toLocaleString()}</div>
+                                    <div class="metric-label">Total Pending</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">${summary.overdue_count}</div>
+                                    <div class="metric-label">Overdue Items</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">${summary.record_count}</div>
+                                    <div class="metric-label">Total Records</div>
+                                </div>
+                            </div>
+
+                            <h4>💰 Tax Type Breakdown:</h4>
+                            <div class="grid">
+                                ${breakdownHtml}
+                            </div>
+
+                            ${result.ai_analysis ? `
+                                <div class="ai-suggestions">
+                                    <h4>🤖 AI Tax Analysis:</h4>
+                                    <p><strong>Health Assessment:</strong> ${result.ai_analysis.health_assessment}</p>
+                                    <p><strong>Optimization:</strong> ${result.ai_analysis.optimization_opportunities ? result.ai_analysis.optimization_opportunities.join(', ') : 'Regular monitoring recommended'}</p>
+                                    <p><strong>Recommendations:</strong> ${result.ai_analysis.strategic_recommendations ? result.ai_analysis.strategic_recommendations.join(', ') : 'Maintain compliance'}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    summaryDiv.innerHTML = `
+                        <div class="business-card">
+                            <h3>No Tax Data Found</h3>
+                            <p>No tax records found for the selected period</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error loading tax summary: ' + error.message);
+            }
+        }
+
+        // Load tax records
+        async function loadTaxRecords() {
+            if (!currentBusinessId) {
+                document.getElementById('taxRecordsList').innerHTML = `
+                    <div class="business-card">
+                        <h3>📋 Tax Records</h3>
+                        <p>Please create a business profile first to manage tax records.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // For now, show placeholder
+            document.getElementById('taxRecordsList').innerHTML = `
+                <div class="business-card">
+                    <h3>📋 Recent Tax Records</h3>
+                    <p>Tax records will appear here once added. Use the form above to add your first tax record.</p>
+                </div>
+            `;
+        }
+
+        // Display tax insights
+        function displayTaxInsights(insights) {
+            const insightsHtml = `
+                <div class="gst-summary">
+                    <h4>🤖 AI Tax Insights:</h4>
+                    <p><strong>Optimization Tips:</strong> ${insights.optimization_tips ? insights.optimization_tips.join(', ') : 'Regular planning recommended'}</p>
+                    <p><strong>Compliance Advice:</strong> ${insights.compliance_advice ? insights.compliance_advice.join(', ') : 'Follow regulations'}</p>
+                    <p><strong>Planning Suggestions:</strong> ${insights.planning_suggestions ? insights.planning_suggestions.join(', ') : 'Plan ahead'}</p>
+                </div>
+            `;
+
+            // Add to tax records list
+            const recordsList = document.getElementById('taxRecordsList');
+            recordsList.innerHTML = insightsHtml + recordsList.innerHTML;
+        }
+
+        // Load GST summary
+        async function loadGSTSummary() {
+            if (!currentBusinessId) {
+                alert('Please create a business profile first!');
+                return;
+            }
+            
+            const month = document.getElementById('gstMonth').value;
+            const year = document.getElementById('gstYear').value;
+            
+            try {
+                const response = await fetch(`/business/gst/${currentBusinessId}/${month}/${year}`);
+                const result = await response.json();
+                
+                const summaryDiv = document.getElementById('gstSummaryContent');
+                
+                if (result.success) {
+                    summaryDiv.innerHTML = `
+                        <div class="gst-summary">
+                            <h3>GST Summary for ${getMonthName(month)} ${year}</h3>
+                            <div class="grid">
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.summary.total_taxable_amount.toLocaleString()}</div>
+                                    <div class="metric-label">Total Taxable Amount</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.summary.total_gst_collected.toLocaleString()}</div>
+                                    <div class="metric-label">GST Collected</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.summary.total_gst_paid.toLocaleString()}</div>
+                                    <div class="metric-label">GST Paid</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.summary.net_gst_liability.toLocaleString()}</div>
+                                    <div class="metric-label">Net GST Liability</div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="calculateGSTReturn('${month}', '${year}')" class="btn btn-success">
+                                💰 Calculate GST Return
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    summaryDiv.innerHTML = `
+                        <div class="business-card">
+                            <h3>No GST Data Found</h3>
+                            <p>No GST transactions found for ${getMonthName(month)} ${year}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error loading GST summary: ' + error.message);
+            }
+        }
+        
+        // Calculate GST return
+        async function calculateGSTReturn(month, year) {
+            try {
+                const response = await fetch(`/business/gst-return/${currentBusinessId}/${month}/${year}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const returnAmount = result.gst_return_amount;
+                    const refundAmount = result.refund_amount;
+                    
+                    let message = '';
+                    if (returnAmount > 0) {
+                        message = `You need to pay ₹${returnAmount.toLocaleString()} as GST return by ${result.due_date}`;
+                    } else if (refundAmount > 0) {
+                        message = `You are eligible for a refund of ₹${refundAmount.toLocaleString()}`;
+                    } else {
+                        message = 'No GST payment or refund required for this month';
+                    }
+                    
+                    alert(`GST Return Calculation:\n\n${message}`);
+                } else {
+                    alert('Error calculating GST return: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Check reminders
+        async function checkReminders() {
+            if (!currentBusinessId) {
+                alert('Please create a business profile first!');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/business/reminder/${currentBusinessId}`);
+                const result = await response.json();
+                
+                const reminderDiv = document.getElementById('reminderContent');
+                
+                if (result.success) {
+                    const returnData = result.gst_return_data;
+                    reminderDiv.innerHTML = `
+                        <div class="reminder-card">
+                            <h3>📋 GST Return Status for ${result.for_month}</h3>
+                            <p><strong>Return Amount:</strong> ₹${returnData.gst_return_amount.toLocaleString()}</p>
+                            <p><strong>Due Date:</strong> ${returnData.due_date}</p>
+                            <p><strong>Action Required:</strong> ${result.action_required ? 'Yes - Payment needed' : 'No - All clear'}</p>
+                        </div>
+                    `;
+                } else {
+                    reminderDiv.innerHTML = `
+                        <div class="business-card">
+                            <h3>No Reminder Data</h3>
+                            <p>Unable to load reminder data at this time.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alert('Error checking reminders: ' + error.message);
+            }
+        }
+        
+        // Load analytics
+        async function loadAnalytics() {
+            if (!currentBusinessId) {
+                document.getElementById('analyticsContent').innerHTML = `
+                    <div class="business-card">
+                        <h3>📊 Business Analytics</h3>
+                        <p>Please create a business profile first to view analytics.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/business/analytics/${currentBusinessId}?period=month`);
+                const result = await response.json();
+                
+                const analyticsDiv = document.getElementById('analyticsContent');
+                
+                if (result.success) {
+                    analyticsDiv.innerHTML = `
+                        <div class="business-card">
+                            <h3>📈 Monthly Business Analytics</h3>
+                            <div class="grid">
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.analytics.total_credits.toLocaleString()}</div>
+                                    <div class="metric-label">Total Credits</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.analytics.total_debits.toLocaleString()}</div>
+                                    <div class="metric-label">Total Debits</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.analytics.net_profit.toLocaleString()}</div>
+                                    <div class="metric-label">Net Profit</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value">₹${result.analytics.total_gst.toLocaleString()}</div>
+                                    <div class="metric-label">Total GST</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    analyticsDiv.innerHTML = `
+                        <div class="business-card">
+                            <h3>No Analytics Data</h3>
+                            <p>Add some transactions to see analytics.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                analyticsDiv.innerHTML = `
+                    <div class="business-card">
+                        <h3>Error Loading Analytics</h3>
+                        <p>Unable to load analytics at this time.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function getMonthName(month) {
+            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[parseInt(month)];
+        }
+        
+        // Set current month and year
+        const now = new Date();
+        document.getElementById('gstMonth').value = now.getMonth() + 1;
+        document.getElementById('gstYear').value = now.getFullYear();
+        
+        // Set next due date
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 20);
+        document.getElementById('nextDueDate').textContent = nextMonth.toLocaleDateString();
+    </script>
+</body>
+</html>

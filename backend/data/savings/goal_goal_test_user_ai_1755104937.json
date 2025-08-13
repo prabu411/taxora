@@ -1,0 +1,14 @@
+{
+  "goal_id": "goal_test_user_ai_1755104937",
+  "user_id": "test_user_ai",
+  "goal_name": "Emergency Fund Test",
+  "target_amount": 50000.0,
+  "monthly_salary": 30000.0,
+  "monthly_saving_target": 5000.0,
+  "saving_method": "bank_account",
+  "start_date": "2025-08-13",
+  "target_date": "2025-12-31",
+  "description": "Testing AI integration with savings planner",
+  "created_at": "2025-08-13T22:38:57.295307",
+  "is_active": true
+}
