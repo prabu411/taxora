@@ -22,7 +22,7 @@ Whether you're a student, a working professional, or simply someone looking to m
 
 | Technology | Description |
 |------------|-------------|
-| IBM Watson Assistant | Manages dialogue and interactions |
+| IBM Granite | Manages dialogue and interactions |
 | Watson Natural Language Understanding | Extracts intent and financial context from user queries |
 | IBM watsonx.ai | Powers reasoning, analysis, and personalized recommendations |
 | Python | Backend logic and data handling |
